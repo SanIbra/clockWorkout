@@ -1,6 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Timer from './components/Timer';
+import Timer2 from './components/Timer2';
+
 
 const mainColor = 'green';
 
@@ -37,18 +40,42 @@ export default function App() {
 
   const [isRuning, setIsRuning] = useState(false);
 
-  const [timerTitle, setTimerTitle] = useState("");
+  const [timerTitle, setTimerTitle] = useState(timerIniatialValue + "\nStart");
+
+  const [interval, setIntervalValue] = useState();
 
   const majTimerTitle = () => setTimerTitle(timer + '\n' + (isRuning ? 'Pause' : 'Start'))
-  setTimeout(() => {
-    if (isRuning) {
-      setTimer(timer - 1);
-      majTimerTitle();
-    }
-    return;
-  }, 1000)
 
+  const clickButton = () => {
+    const nextState = !isRuning;
+    setIsRuning(nextState);
+    majTimerTitle();
+    if (nextState)
+      start();
+    else
+      stop()
+  }
+  const start = () => {
+    console.log("START CLOCk")
+    // const interval = setInterval(() => {
+    //   console.log("IN")
+    //   setTimer(timer - 1);
+    //   // majTimerTitle();
+    // }, 100)
+    // console.log("inter", interval)
+    setIntervalValue(interval);
+  }
+
+  const stop = () => {
+
+    console.log("END CLOCk")
+    setIsRuning(false);
+    console.log(interval)
+    if (interval)
+      clearInterval(interval);
+  }
   const reset = () => {
+    stop();
     setTimer(timerIniatialValue);
     majTimerTitle();
   }
@@ -57,7 +84,6 @@ export default function App() {
     setTimer(timer + 10);
     majTimerTitle();
   }
-  // majTimerTitle();
 
   return (<View
     style={[styles.container]}>
@@ -66,13 +92,16 @@ export default function App() {
     </View>
     <View style={{ flex: 4, justifyContent: 'center', backgroundColor: 'darkorange' }} >
       <View style={{ flex: 1, flexDirection: 'row', backgroundColor: 'rose', justifyContent: 'center' }}>
-        <RoundButton
-          style={{
-            width: 200,
-            height: 200
-          }}
-          onPress={() => setIsRuning(!isRuning)}
-          title={timerTitle}
+
+        {/* <Timer
+          start={isRuning}
+          stop={!isRuning}
+          totalDuration={timerIniatialValue*1000}
+        /> */}
+        <Timer2
+          isRuning={isRuning}
+          timer={40}
+          additionalTime={10}
         />
         {/* <TouchableOpacity
           style={[styles.roundButton1, {
@@ -89,14 +118,14 @@ export default function App() {
         </TouchableOpacity> */}
       </View>
       <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
-        <RoundButton
+        {/* <RoundButton
           onPress={add10s}
           title='+10s'
         />
         <RoundButton
           onPress={reset}
           title='reset'
-        />
+        /> */}
       </View>
     </View>
     <View style={{ flex: 1, backgroundColor: 'green' }} >
@@ -116,3 +145,5 @@ const RoundButton = (props) => {
     </TouchableOpacity>
   )
 }
+
+
