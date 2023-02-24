@@ -1,13 +1,13 @@
 {
   "expo": {
     "name": "ClockWorkout",
-    "slug": "ClockWorkout",
+    "slug": "clockworkout",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/adaptive-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -24,10 +24,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.bradevia.clockworkout"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "65b58167-2625-44de-bd25-0e956b1f78a9"
+      }
+    },
+    "owner": "bradevia"
   }
 }
