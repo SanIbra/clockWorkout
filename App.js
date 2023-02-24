@@ -36,7 +36,7 @@ export default function App() {
   const timerIniatialValue = 40
   return (
     <View style={[styles.container, { backgroundColor: 'black' }]}>
-      {/* <StatusBar style='auto'></StatusBar> */}
+      <StatusBar style="light"></StatusBar>
       <View style={{ flex: 1 }} >
       </View>
       <View style={{ flex: 4, justifyContent: 'center' }} >
