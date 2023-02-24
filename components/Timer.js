@@ -1,139 +1,151 @@
+import { Sound } from 'expo-av/build/Audio';
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+
 
 export class Timer extends Component {
-  // static propTypes = {
-  //   reset: PropTypes.bool,
-  //   msecs: PropTypes.bool,
-  //   options: PropTypes.object,
-  //   handleFinish: PropTypes.func,
-  //   totalDuration: PropTypes.number,
-  //   getTime: PropTypes.func,
-  //   getMsecs: PropTypes.func,
-  // }
+    interval;
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      started: false,
-      remainingTime: props.totalDuration,
-    };
-    this.start = this.start.bind(this);
-    this.stop = this.stop.bind(this);
-    this.reset = this.reset.bind(this);
-    this.formatTime = this.formatTime.bind(this);
-    const width = props.msecs ? 220 : 150;
-    this.defaultStyles = {
-      container: {
-        backgroundColor: '#000',
-        padding: 5,
-        borderRadius: 5,
-        width: width,
-      },
-      text: {
-        fontSize: 30,
-        color: '#FFF',
-        marginLeft: 7,
-      }
-    };
-  }
-
-  componentDidMount() {
-    if (this.props.start) {
-      this.start();
+    constructor(props) {
+        super(props);
+        this.state = {
+            timer: props.timer,
+            isRunning: false,
+            subTitle: "Start"
+        };
     }
-  }
 
-  componentWillReceiveProps(newProps) {
-
-    if (newProps.start) {
-      this.start();
-    } else {
-      this.stop();
+    async timeUp() {
+        const sound = new Sound();
+        await sound.loadAsync(require('./../assets/sounds/beep-beep.mp3'));
+        await sound.playAsync();
+        setTimeout(() => sound.unloadAsync(), 1000)
     }
-    if (newProps.reset) {
-      this.reset(newProps.totalDuration);
-    }
-  }
 
-  start() {
-    const handleFinish = this.props.handleFinish ? this.props.handleFinish : () => alert("Timer Finished");
-    const endTime = new Date().getTime() + this.state.remainingTime;
-    this.interval = setInterval(() => {
-      const remaining = endTime - new Date();
-      if (remaining <= 1000) {
-        this.setState({ remainingTime: 0 });
+    componentDidMount() {
+        if (this.props.isRunning) {
+            this.start();
+        }
+    }
+
+    start() {
+        this.interval = setInterval(
+            () => this.tick(),
+            1000
+        );
+
+        this.setState({
+            subTitle: "Pause"
+        })
+    }
+
+    stop() {
+        clearInterval(this.interval);
+        this.setState({
+            subTitle: "Start"
+        })
+    }
+
+
+
+    onPressTimerButton() {
+        const isRunningPreState = !this.state.isRunning;
+        if (isRunningPreState) {
+            this.start();
+        } else {
+            this.stop();
+        }
+        this.setState({ isRunning: isRunningPreState });
+    }
+
+    componentDidUpdate(prevProps) {
+
+        if (prevProps.isRuning != this.props.isRuning) {
+            if (this.props.isRuning) {
+                this.start();
+            } else {
+                this.stop();
+            }
+        }
+        if (this.sound)
+            this.sound.unloadAsync();
+    }
+
+    componentWillUnmount() {
         this.stop();
-        handleFinish();
-        return;
-      }
-      this.setState({ remainingTime: remaining });
-    }, 1);
-  }
-
-  stop() {
-    clearInterval(this.interval);
-  }
-
-  reset(newDuration) {
-    this.setState({
-      remainingTime:
-        this.props.totalDuration !== newDuration ?
-          newDuration :
-          this.props.totalDuration
-    });
-  }
-
-  formatTime() {
-    const { getTime, getMsecs, msecs } = this.props;
-    const now = this.state.remainingTime;
-    const formatted = this.formatTimeString(now, msecs);
-    if (typeof getTime === "function") {
-      getTime(formatted);
-    }
-    if (typeof getMsecs === "function") {
-      getMsecs(now)
-    }
-    return formatted;
-  }
-
-  render() {
-
-    const styles = this.props.options ? this.props.options : this.defaultStyles;
-
-    return (
-      <View style={styles.container}>
-        <Text style={styles.text}>{this.formatTime()}</Text>
-      </View>
-    );
-  }
-
-  formatTimeString(time, showMsecs) {
-    let msecs = time % 1000;
-
-    if (msecs < 10) {
-      msecs = `00${msecs}`;
-    } else if (msecs < 100) {
-      msecs = `0${msecs}`;
     }
 
-    let seconds = Math.floor(time / 1000);
-    let minutes = Math.floor(time / 60000);
-    let hours = Math.floor(time / 3600000);
-    seconds = seconds - minutes * 60;
-    minutes = minutes - hours * 60;
-    let formatted;
-    if (showMsecs) {
-      formatted = `${hours < 10 ? 0 : ""}${hours}:${minutes < 10 ? 0 : ""
-        }${minutes}:${seconds < 10 ? 0 : ""}${seconds}:${msecs}`;
-    } else {
-      formatted = `${hours < 10 ? 0 : ""}${hours}:${minutes < 10 ? 0 : ""
-        }${minutes}:${seconds < 10 ? 0 : ""}${seconds}`;
+    tick() {
+        if (this.state.timer <= 1) {
+            this.timeUp();
+            this.reset();
+        }else{
+            this.setState({ timer: this.state.timer - 1 })
+        }
     }
 
-    return formatted;
-  }
+    addAdditionalTime() {
+        this.setState({ timer: this.state.timer + this.props.additionalTime })
+    }
+
+    reset() {
+        this.stop()
+        this.setState({ timer: this.props.timer })
+    }
+
+    render() {
+        return (
+            <View>
+                <View>
+                    <RoundButton
+                        style={{
+                            width: 200,
+                            height: 200
+                        }}
+                        onPress={() => this.onPressTimerButton()}
+                        title={this.state.timer}
+                        subTitle={this.state.subTitle}
+                    />
+                </View>
+                <View style={{ flex: 1, flexDirection: 'row' }}>
+
+                    <RoundButton
+                        onPress={() => this.addAdditionalTime()}
+                        title={"+" + this.props.additionalTime}
+                    />
+
+                    <RoundButton
+                        onPress={() => this.reset()}
+                        title="reset"
+                    />
+                </View>
+            </View >);
+    }
 }
 
+const RoundButton = (props) => {
+    const mainColor = 'green';
+    const style = props.style ? props.style : {};
+    const roundButton1 = {
+        width: 100,
+        height: 100,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 10,
+        borderRadius: 100,
 
-export default  Timer;
+        textAlign: 'center',
+        backgroundColor: mainColor,
+        mainColor: 'black'
+    }
+
+    return (
+        <TouchableOpacity
+            style={[roundButton1, style]}
+            onPress={props.onPress}>
+            <Text style={{ color: 'black', textAlign: 'center' }}>{props.title}{props.subTitle ? "\n" : ""}{props.subTitle}</Text>
+        </TouchableOpacity>
+    )
+}
+
+export default Timer;

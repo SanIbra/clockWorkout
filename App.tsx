@@ -1,11 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import * as React from 'react';
+import { StyleSheet, View } from 'react-native';
 import Timer from './components/Timer';
-import Timer2 from './components/Timer2';
 
 
-const mainColor = 'green';
+const mainColor: string = 'green';
 
 const styles = StyleSheet.create({
   container: {
@@ -33,7 +32,7 @@ const styles = StyleSheet.create({
 });
 
 export default function App() {
-  const timerIniatialValue = 40
+  const timerIniatialValue = 5
   return (
     <View style={[styles.container, { backgroundColor: 'black' }]}>
       <StatusBar style="light"></StatusBar>
@@ -41,7 +40,7 @@ export default function App() {
       </View>
       <View style={{ flex: 4, justifyContent: 'center' }} >
         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
-          <Timer2
+          <Timer
             timer={timerIniatialValue}
             additionalTime={10}
           />
