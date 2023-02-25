@@ -1,15 +1,33 @@
 import { Sound } from 'expo-av/build/Audio';
 import React, { Component } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import PropTypes from 'prop-types';
 
 
-export class Timer extends Component {
+
+type TimerProps = {
+    timer: number,
+    additionalTime: number
+}
+type TimerState = {
+    timerRemaining: number,
+    isRunning: boolean,
+    subTitle: string
+}
+
+
+export class Timer extends Component<TimerProps, TimerState> {
     interval;
+
+    static propTypes = {
+        timer: PropTypes.number,
+        additionalTime: PropTypes.number
+    }
 
     constructor(props) {
         super(props);
         this.state = {
-            timer: props.timer,
+            timerRemaining: props.timer,
             isRunning: false,
             subTitle: "Start"
         };
@@ -23,9 +41,6 @@ export class Timer extends Component {
     }
 
     componentDidMount() {
-        if (this.props.isRunning) {
-            this.start();
-        }
     }
 
     start() {
@@ -58,39 +73,26 @@ export class Timer extends Component {
         this.setState({ isRunning: isRunningPreState });
     }
 
-    componentDidUpdate(prevProps) {
-
-        if (prevProps.isRuning != this.props.isRuning) {
-            if (this.props.isRuning) {
-                this.start();
-            } else {
-                this.stop();
-            }
-        }
-        if (this.sound)
-            this.sound.unloadAsync();
-    }
-
     componentWillUnmount() {
         this.stop();
     }
 
     tick() {
-        if (this.state.timer <= 1) {
+        if (this.state.timerRemaining <= 1) {
             this.timeUp();
             this.reset();
-        }else{
-            this.setState({ timer: this.state.timer - 1 })
+        } else {
+            this.setState({ timerRemaining: this.state.timerRemaining - 1 })
         }
     }
 
     addAdditionalTime() {
-        this.setState({ timer: this.state.timer + this.props.additionalTime })
+        this.setState({ timerRemaining: this.state.timerRemaining + this.props.additionalTime })
     }
 
     reset() {
         this.stop()
-        this.setState({ timer: this.props.timer })
+        this.setState({ timerRemaining: this.props.timer })
     }
 
     render() {
@@ -101,9 +103,10 @@ export class Timer extends Component {
                         style={{
                             width: 200,
                             height: 200
-                        }}
+                        }
+                        }
                         onPress={() => this.onPressTimerButton()}
-                        title={this.state.timer}
+                        title={this.state.timerRemaining}
                         subTitle={this.state.subTitle}
                     />
                 </View>
@@ -142,10 +145,11 @@ const RoundButton = (props) => {
     return (
         <TouchableOpacity
             style={[roundButton1, style]}
-            onPress={props.onPress}>
-            <Text style={{ color: 'black', textAlign: 'center' }}>{props.title}{props.subTitle ? "\n" : ""}{props.subTitle}</Text>
+            onPress={props.onPress} >
+            <Text style={{ color: 'black', textAlign: 'center' }}> {props.title}{props.subTitle ? "\n" : ""} {props.subTitle} </Text>
         </TouchableOpacity>
-    )
+    );
 }
+
 
 export default Timer;

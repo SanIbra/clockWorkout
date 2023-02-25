@@ -9,20 +9,20 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@types/node": "^16.18.12",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@types/react-native": "~0.70.6",
     "expo": "~47.0.12",
+    "expo-av": "~13.0.3",
     "expo-status-bar": "~1.4.2",
+    "prop-types": "^15.8.1",
     "react": "18.1.0",
     "react-native": "0.70.5",
-    "expo-av": "~13.0.3",
-    "typescript": "^4.6.3",
-    "@types/react": "~18.0.24",
-    "@types/react-native": "~0.70.6"
+    "typescript": "^4.6.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.3",
-    "typescript": "^4.6.3",
-    "@types/react": "~18.0.24",
-    "@types/react-native": "~0.70.6"
+    "@babel/core": "^7.19.3"
   },
   "private": true
 }
