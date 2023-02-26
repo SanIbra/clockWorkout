@@ -1,9 +1,9 @@
 import { Sound } from 'expo-av/build/Audio';
-import React, { Component } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import React, { Component, Provider } from 'react';
+import { Button, Text, TouchableOpacity, StyleSheet, View } from 'react-native';
 import PropTypes from 'prop-types';
-
-
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
+import { FontAwesome } from '@expo/vector-icons';
 
 type TimerProps = {
     timer: number,
@@ -11,13 +11,13 @@ type TimerProps = {
 }
 type TimerState = {
     timerRemaining: number,
-    isRunning: boolean,
+    timerRemainingSave: number,
+    isPlaying: boolean,
     subTitle: string
 }
 
 
 export class Timer extends Component<TimerProps, TimerState> {
-    interval;
 
     static propTypes = {
         timer: PropTypes.number,
@@ -28,34 +28,32 @@ export class Timer extends Component<TimerProps, TimerState> {
         super(props);
         this.state = {
             timerRemaining: props.timer,
-            isRunning: false,
+            timerRemainingSave: props.timer,
+            isPlaying: false,
             subTitle: "Start"
         };
+        console.log(super.props)
     }
 
-    async timeUp() {
+    async timeUp(): Promise<void> {
         const sound = new Sound();
         await sound.loadAsync(require('./../assets/sounds/beep-beep.mp3'));
         await sound.playAsync();
         setTimeout(() => sound.unloadAsync(), 1000)
+        this.reset();
     }
 
     componentDidMount() {
     }
 
     start() {
-        this.interval = setInterval(
-            () => this.tick(),
-            1000
-        );
-
         this.setState({
             subTitle: "Pause"
         })
     }
 
     stop() {
-        clearInterval(this.interval);
+
         this.setState({
             subTitle: "Start"
         })
@@ -64,91 +62,95 @@ export class Timer extends Component<TimerProps, TimerState> {
 
 
     onPressTimerButton() {
-        const isRunningPreState = !this.state.isRunning;
+        const isRunningPreState = !this.state.isPlaying;
         if (isRunningPreState) {
             this.start();
         } else {
             this.stop();
         }
-        this.setState({ isRunning: isRunningPreState });
+        this.setState({ isPlaying: isRunningPreState });
     }
 
     componentWillUnmount() {
         this.stop();
     }
 
-    tick() {
-        if (this.state.timerRemaining <= 1) {
-            this.timeUp();
-            this.reset();
-        } else {
-            this.setState({ timerRemaining: this.state.timerRemaining - 1 })
-        }
-    }
-
     addAdditionalTime() {
-        this.setState({ timerRemaining: this.state.timerRemaining + this.props.additionalTime })
+        this.setState({ timerRemaining: this.state.timerRemainingSave + this.props.additionalTime })
     }
 
     reset() {
         this.stop()
-        this.setState({ timerRemaining: this.props.timer })
+        this.setState({ isPlaying: false, timerRemaining: this.props.timer })
+        this.render();
     }
 
     render() {
         return (
-            <View>
-                <View>
-                    <RoundButton
-                        style={{
-                            width: 200,
-                            height: 200
+            <View style={[this.styles.center]}>
+                <View >
+                    <CountdownCircleTimer
+                        isPlaying={this.state.isPlaying}
+                        duration={this.props.timer}
+                        initialRemainingTime={this.state.timerRemaining}
+                        colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+                        colorsTime={[7, 5, 2, 0]}
+                        onComplete={total => { this.timeUp(); return { shouldRepeat: true } }}
+                        onUpdate={remainingTime => { this.setState({ timerRemainingSave: remainingTime }) }}
+                    >
+                        {({ remainingTime }) => (
+                            <View>
+                                <Text adjustsFontSizeToFit>{remainingTime}</Text>
+                            </View>)
                         }
-                        }
-                        onPress={() => this.onPressTimerButton()}
-                        title={this.state.timerRemaining}
-                        subTitle={this.state.subTitle}
-                    />
+                    </CountdownCircleTimer>
                 </View>
-                <View style={{ flex: 1, flexDirection: 'row' }}>
-
-                    <RoundButton
-                        onPress={() => this.addAdditionalTime()}
-                        title={"+" + this.props.additionalTime}
-                    />
-
-                    <RoundButton
-                        onPress={() => this.reset()}
-                        title="reset"
-                    />
+                <View >
+                    {this.state.isPlaying ?
+                        <FontAwesome name="pause" size={24} color="black" onPress={() => this.onPressTimerButton()} />
+                        :
+                        <FontAwesome name="play" size={24} color="black" onPress={() => this.onPressTimerButton()} />
+                    }
                 </View>
+                {/* <View style={{ flex: 1, flexDirection: 'row' }}>
+                    <FontAwesome name="repeat" size={24} color="black" onPress={() => this.reset()} />
+                </View> */}
+
             </View >);
     }
-}
 
-const RoundButton = (props) => {
-    const mainColor = 'green';
-    const style = props.style ? props.style : {};
-    const roundButton1 = {
-        width: 100,
-        height: 100,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 10,
-        borderRadius: 100,
 
-        textAlign: 'center',
-        backgroundColor: mainColor,
-        mainColor: 'black'
-    }
+    styles = StyleSheet.create({
+        center: {
+            flex: 1,
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
 
-    return (
-        <TouchableOpacity
-            style={[roundButton1, style]}
-            onPress={props.onPress} >
-            <Text style={{ color: 'black', textAlign: 'center' }}> {props.title}{props.subTitle ? "\n" : ""} {props.subTitle} </Text>
-        </TouchableOpacity>
-    );
+        container: {
+            flex: 1,
+            flexDirection: 'column',
+            padding: 10,
+            backgroundColor: '#fff',
+            borderColor: 'red',
+            borderRadius: 4
+            //   alignItems: 'center',
+            //   justifyContent: 'center',
+        },
+        roundButton1: {
+            width: 100,
+            height: 100,
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 10,
+            borderRadius: 100,
+
+            textAlign: 'center',
+            backgroundColor: 'white',
+            mainColor: 'black'
+        }
+    })
 }
 
 

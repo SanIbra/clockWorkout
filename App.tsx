@@ -2,7 +2,9 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Timer from './components/Timer';
-
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import SetUpScreen from './components/SetUpScreen';
 
 const mainColor: string = 'green';
 
@@ -31,24 +33,44 @@ const styles = StyleSheet.create({
   },
 });
 
+const Stack = createNativeStackNavigator();
+
 export default function App() {
-  const timerIniatialValue = 5
   return (
-    <View style={[styles.container, {  }]}>
-      <StatusBar style="auto"></StatusBar>
-      <View style={{ flex: 1 }} >
-      </View>
-      <View style={{ flex: 4, justifyContent: 'center' }} >
-        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
-          <Timer
-            timer={timerIniatialValue}
-            additionalTime={10}
-          />
+    <NavigationContainer>
+      <Stack.Navigator>
+
+        <Stack.Screen name="Préparation" component={SetUpTimerScreen} />
+        <Stack.Screen name="Chrono"  component={HomeScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
+
+  function HomeScreen() {
+    const timerIniatialValue = 5
+    return (
+      <View style={[styles.container, {}]}>
+        <StatusBar style="auto"></StatusBar>
+        <View style={{ flex: 1 }} >
         </View>
-        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+        <View style={{ flex: 4, justifyContent: 'center' }} >
+          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+            <Timer
+              timer={timerIniatialValue}
+              additionalTime={10}
+            />
+          </View>
+          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+          </View>
         </View>
-      </View>
-      <View style={{ flex: 1 }} >
-      </View>
-    </View>)
+        <View style={{ flex: 1 }} >
+        </View>
+      </View>)
+  }
+
+  function SetUpTimerScreen() {
+    return (
+      <SetUpScreen />
+    );
+  }
 }
