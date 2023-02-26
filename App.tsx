@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
 
     textAlign: 'center',
-    backgroundColor: mainColor,
+    backgroundColor: 'white',
     mainColor: 'black'
   },
 });
@@ -34,8 +34,8 @@ const styles = StyleSheet.create({
 export default function App() {
   const timerIniatialValue = 5
   return (
-    <View style={[styles.container, { backgroundColor: 'black' }]}>
-      <StatusBar style="light"></StatusBar>
+    <View style={[styles.container, {  }]}>
+      <StatusBar style="auto"></StatusBar>
       <View style={{ flex: 1 }} >
       </View>
       <View style={{ flex: 4, justifyContent: 'center' }} >
