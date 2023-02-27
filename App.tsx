@@ -46,8 +46,7 @@ export default function App() {
     </NavigationContainer>
   )
 
-  function HomeScreen() {
-    const timerIniatialValue = 5
+  function HomeScreen({ route }) {
     return (
       <View style={[styles.container, {}]}>
         <StatusBar style="auto"></StatusBar>
@@ -56,8 +55,7 @@ export default function App() {
         <View style={{ flex: 4, justifyContent: 'center' }} >
           <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
             <Timer
-              timer={timerIniatialValue}
-              additionalTime={10}
+              route={route}
             />
           </View>
           <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>

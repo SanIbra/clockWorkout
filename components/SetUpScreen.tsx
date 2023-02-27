@@ -1,6 +1,7 @@
 
 import React, { Component } from 'react';
 import { Button, TextInput, Text, StyleSheet, View } from 'react-native';
+import { TimerSession } from './TimerSession';
 
 interface SetUpState {
     nombreRep: number,
@@ -12,12 +13,13 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
     static propTypes = {
     }
 
+
     constructor(props) {
         super(props);
         this.state = {
             nombreRep: 3,
-            tpsRepos: 15,
-            tpsEffort: 45
+            tpsRepos: 3,
+            tpsEffort: 5
         };
 
         this.launchTimer.bind(this);
@@ -31,10 +33,10 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
             return parseInt(nb);
         }
 
-        const input = (title, updateFonction) => <View>
+        const input = (title, updateFonction, initialValue) => <View>
             <Text style={[this.styles.text, { color: 'blue' }]} >{title} </Text>
             <TextInput
-                defaultValue='00'
+                defaultValue={initialValue + ""}
                 onChangeText={updateFonction}
                 placeholderTextColor="#60605e"
                 keyboardType={'numeric'}
@@ -45,15 +47,18 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
             <View style={[this.styles.center]}>
                 {
                     input('Nombre de répétition( en secondes )',
-                        input => this.setState({ nombreRep: toInt(input) }))
+                        input => this.setState({ nombreRep: toInt(input) }),
+                        this.state.nombreRep)
                 }
                 {
                     input("Durée de l'exercice( en secondes )",
-                        input => this.setState({ tpsEffort: toInt(input) }))
+                        input => this.setState({ tpsEffort: toInt(input) }),
+                        this.state.tpsRepos)
                 }
                 {
                     input("Durée de recuperation( en secondes )",
-                        input => this.setState({ tpsRepos: toInt(input) }))
+                        input => this.setState({ tpsRepos: toInt(input) }),
+                        this.state.tpsEffort)
                 }
                 <View>
                     <Button
@@ -66,8 +71,12 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
     navigation: any;
 
     launchTimer() {
-        console.log(typeof this.props.navigation)
-        this.props.navigation.navigate('Chrono');
+
+        this.props.navigation.navigate('Chrono', {
+            nombreRep: this.state.nombreRep,
+            tpsRepos: this.state.tpsRepos,
+            tpsEffort: this.state.tpsEffort
+        });
     }
 
     styles = StyleSheet.create({

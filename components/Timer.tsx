@@ -4,10 +4,12 @@ import { Button, Text, TouchableOpacity, StyleSheet, View } from 'react-native';
 import PropTypes from 'prop-types';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
 import { FontAwesome } from '@expo/vector-icons';
+import { TimerSession } from './TimerSession';
 
 type TimerProps = {
     timer: number,
     additionalTime: number
+    route?: any
 }
 type TimerState = {
     timerRemaining: number,
@@ -17,141 +19,105 @@ type TimerState = {
 }
 
 
-export class Timer extends Component<TimerProps, TimerState> {
+export interface Session {
+    temps: number;
+    titre: string;
+}
+export default function Timer({ route }) {
 
-    static propTypes = {
-        timer: PropTypes.number,
-        additionalTime: PropTypes.number
+    const programme: TimerSession = route.params;
+    const session: Session[] = [];
+    for (let i = 0; i < programme.nombreRep; i++) {
+        session.push({
+            temps: programme.tpsEffort,
+            titre: "Let's goo"
+        });
+        session.push({
+            temps: programme.tpsRepos,
+            titre: "Récuperation"
+        });
     }
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            timerRemaining: props.timer,
-            timerRemainingSave: props.timer,
-            isPlaying: false,
-            subTitle: "Start"
-        };
-        console.log(super.props)
-    }
+    return (<View><SessionDisplay session={session[0]}></SessionDisplay></View>);
 
-    async timeUp(): Promise<void> {
+}
+
+const styles = StyleSheet.create({
+    center: {
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    container: {
+        flex: 1,
+        flexDirection: 'column',
+        padding: 10,
+        backgroundColor: '#fff',
+        borderColor: 'red',
+        borderRadius: 4
+        //   alignItems: 'center',
+        //   justifyContent: 'center',
+    },
+    roundButton1: {
+        width: 100,
+        height: 100,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 10,
+        borderRadius: 100,
+
+        textAlign: 'center',
+        backgroundColor: 'white',
+        mainColor: 'black'
+    }
+})
+function SessionDisplay({ session }) {
+    const sessionActuel = session as Session;
+    const timerRemaining = sessionActuel.temps;
+    const [timerRemainingSave, setTimerRemainingSave] = React.useState(timerRemaining);
+    const [isPlaying, setIsPlaying] = React.useState(false);
+
+    const timeUp = async () => {
         const sound = new Sound();
         await sound.loadAsync(require('./../assets/sounds/beep-beep.mp3'));
         await sound.playAsync();
+
         setTimeout(() => sound.unloadAsync(), 1000)
-        this.reset();
+        setIsPlaying(false)
     }
 
-    componentDidMount() {
-    }
-
-    start() {
-        this.setState({
-            subTitle: "Pause"
-        })
-    }
-
-    stop() {
-
-        this.setState({
-            subTitle: "Start"
-        })
-    }
-
-
-
-    onPressTimerButton() {
-        const isRunningPreState = !this.state.isPlaying;
-        if (isRunningPreState) {
-            this.start();
-        } else {
-            this.stop();
-        }
-        this.setState({ isPlaying: isRunningPreState });
-    }
-
-    componentWillUnmount() {
-        this.stop();
-    }
-
-    addAdditionalTime() {
-        this.setState({ timerRemaining: this.state.timerRemainingSave + this.props.additionalTime })
-    }
-
-    reset() {
-        this.stop()
-        this.setState({ isPlaying: false, timerRemaining: this.props.timer })
-        this.render();
-    }
-
-    render() {
-        return (
-            <View style={[this.styles.center]}>
-                <View >
-                    <CountdownCircleTimer
-                        isPlaying={this.state.isPlaying}
-                        duration={this.props.timer}
-                        initialRemainingTime={this.state.timerRemaining}
-                        colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-                        colorsTime={[7, 5, 2, 0]}
-                        onComplete={total => { this.timeUp(); return { shouldRepeat: true } }}
-                        onUpdate={remainingTime => { this.setState({ timerRemainingSave: remainingTime }) }}
-                    >
-                        {({ remainingTime }) => (
-                            <View>
-                                <Text adjustsFontSizeToFit>{remainingTime}</Text>
-                            </View>)
-                        }
-                    </CountdownCircleTimer>
-                </View>
-                <View >
-                    {this.state.isPlaying ?
-                        <FontAwesome name="pause" size={24} color="black" onPress={() => this.onPressTimerButton()} />
-                        :
-                        <FontAwesome name="play" size={24} color="black" onPress={() => this.onPressTimerButton()} />
+    return (
+        <View style={[styles.center]}>
+            <View><Text>{sessionActuel.titre}</Text></View>
+            <View >
+                <CountdownCircleTimer
+                    isPlaying={isPlaying}
+                    duration={timerRemainingSave}
+                    initialRemainingTime={timerRemaining}
+                    colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+                    colorsTime={[7, 5, 2, 0]}
+                    onComplete={total => { timeUp(); return { shouldRepeat: true } }}
+                // onUpdate={remainingTime => { setTimerRemainingSave(remainingTime) }}
+                >
+                    {({ remainingTime }) => (
+                        <View>
+                            <Text adjustsFontSizeToFit>{remainingTime}</Text>
+                        </View>)
                     }
-                </View>
-                {/* <View style={{ flex: 1, flexDirection: 'row' }}>
-                    <FontAwesome name="repeat" size={24} color="black" onPress={() => this.reset()} />
-                </View> */}
+                </CountdownCircleTimer>
+            </View>
+            <View >
+                {isPlaying ?
+                    <FontAwesome name="pause" size={24} color="black" onPress={() => setIsPlaying(false)} />
+                    :
+                    <FontAwesome name="play" size={24} color="black" onPress={() => setIsPlaying(true)} />
+                }
+            </View>
+            {/* <View style={{ flex: 1, flexDirection: 'row' }}>
+                <FontAwesome name="repeat" size={24} color="black" onPress={() => this.reset()} />
+            </View> */}
 
-            </View >);
-    }
-
-
-    styles = StyleSheet.create({
-        center: {
-            flex: 1,
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-
-        container: {
-            flex: 1,
-            flexDirection: 'column',
-            padding: 10,
-            backgroundColor: '#fff',
-            borderColor: 'red',
-            borderRadius: 4
-            //   alignItems: 'center',
-            //   justifyContent: 'center',
-        },
-        roundButton1: {
-            width: 100,
-            height: 100,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 10,
-            borderRadius: 100,
-
-            textAlign: 'center',
-            backgroundColor: 'white',
-            mainColor: 'black'
-        }
-    })
+        </View >);
 }
-
-
-export default Timer;
