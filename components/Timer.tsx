@@ -1,5 +1,5 @@
 import { Sound } from 'expo-av/build/Audio';
-import React, { Component, Provider } from 'react';
+import React, { Component, Provider, useState } from 'react';
 import { Button, Text, TouchableOpacity, StyleSheet, View } from 'react-native';
 import PropTypes from 'prop-types';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
@@ -26,19 +26,30 @@ export interface Session {
 export default function Timer({ route }) {
 
     const programme: TimerSession = route.params;
-    const session: Session[] = [];
+    const sessions: Session[] = [];
+
+    const [indexSession, setIndexSession] = React.useState(0);
     for (let i = 0; i < programme.nombreRep; i++) {
-        session.push({
+        sessions.push({
             temps: programme.tpsEffort,
             titre: "Let's goo"
         });
-        session.push({
+        sessions.push({
             temps: programme.tpsRepos,
             titre: "Récuperation"
         });
     }
 
-    return (<View><SessionDisplay session={session[0]}></SessionDisplay></View>);
+    const listSession =
+        sessions
+            .map((s, i) => (<SessionDisplay
+                session={s}
+                onFinish={() => setIndexSession(i + 1)}
+                runnigImmediately={i !== 0} />));
+
+    listSession.push((<View><Text>Bravo vous avez fini</Text></View>));
+
+    return (<View>{listSession[indexSession]}</View>);
 
 }
 
@@ -73,11 +84,11 @@ const styles = StyleSheet.create({
         mainColor: 'black'
     }
 })
-function SessionDisplay({ session }) {
+function SessionDisplay({ session, onFinish, runnigImmediately }) {
     const sessionActuel = session as Session;
     const timerRemaining = sessionActuel.temps;
     const [timerRemainingSave, setTimerRemainingSave] = React.useState(timerRemaining);
-    const [isPlaying, setIsPlaying] = React.useState(false);
+    const [isPlaying, setIsPlaying] = React.useState(runnigImmediately);
 
     const timeUp = async () => {
         const sound = new Sound();
@@ -85,7 +96,8 @@ function SessionDisplay({ session }) {
         await sound.playAsync();
 
         setTimeout(() => sound.unloadAsync(), 1000)
-        setIsPlaying(false)
+        // setIsPlaying(false) // les states sont partagé dans toute l'appli!!
+        onFinish();
     }
 
     return (
