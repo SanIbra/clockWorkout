@@ -7,7 +7,7 @@ interface SetUpState {
     tpsRepos: number,
     tpsEffort: number
 }
-export class SetUpScreen extends Component<{}, SetUpState> {
+export class SetUpScreen extends Component<{ navigation }, SetUpState> {
 
     static propTypes = {
     }
@@ -66,10 +66,8 @@ export class SetUpScreen extends Component<{}, SetUpState> {
     navigation: any;
 
     launchTimer() {
-        // lancer
-        // const navigation = useNavigation();
-        // console.log(navigation)
-        // navigation.navigate('Chrono');
+        console.log(typeof this.props.navigation)
+        this.props.navigation.navigate('Chrono');
     }
 
     styles = StyleSheet.create({

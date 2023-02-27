@@ -40,8 +40,8 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
 
-        <Stack.Screen name="Préparation" component={SetUpTimerScreen} />
-        <Stack.Screen name="Chrono"  component={HomeScreen} />
+        <Stack.Screen name="Préparation" component={SetUpScreen} />
+        <Stack.Screen name="Chrono" component={HomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )
@@ -66,11 +66,5 @@ export default function App() {
         <View style={{ flex: 1 }} >
         </View>
       </View>)
-  }
-
-  function SetUpTimerScreen() {
-    return (
-      <SetUpScreen />
-    );
   }
 }
