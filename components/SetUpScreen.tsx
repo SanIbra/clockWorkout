@@ -21,8 +21,6 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
             tpsRepos: 3,
             tpsEffort: 5
         };
-
-        this.launchTimer.bind(this);
     }
 
     render() {
@@ -57,7 +55,7 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
                 }
                 {
                     input("Durée de recuperation( en secondes )",
-                        input => this.setState({ tpsRepos: toInt(input) }),
+                        input => this.setState({ tpsEffort: toInt(input) }),
                         this.state.tpsEffort)
                 }
                 <View>
