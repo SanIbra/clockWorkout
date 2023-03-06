@@ -5,8 +5,7 @@ import Timer from './components/Timer';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SetUpScreen from './components/SetUpScreen';
-
-const mainColor: string = 'green';
+import { colorPanel } from './components/Constants';
 
 const styles = StyleSheet.create({
   container: {
@@ -16,8 +15,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderColor: 'red',
     borderRadius: 4
-    //   alignItems: 'center',
-    //   justifyContent: 'center',
   },
   roundButton1: {
     width: 100,
@@ -48,8 +45,8 @@ export default function App() {
 
   function HomeScreen({ route }) {
     return (
-      <View style={[styles.container, {}]}>
-        <StatusBar style="auto"></StatusBar>
+      <View style={[styles.container]}>
+        <StatusBar backgroundColor={colorPanel.main}  ></StatusBar>
         <View style={{ flex: 1 }} >
         </View>
         <View style={{ flex: 4, justifyContent: 'center' }} >

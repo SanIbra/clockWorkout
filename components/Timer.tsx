@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
 import { FontAwesome } from '@expo/vector-icons';
 import { TimerSession } from './TimerSession';
+import { colorPanel } from './Constants';
 
 type TimerProps = {
     timer: number,
@@ -23,6 +24,7 @@ export interface Session {
     temps: number;
     titre: string;
 }
+
 export default function Timer({ route }) {
 
     const programme: TimerSession = route.params;
@@ -32,7 +34,7 @@ export default function Timer({ route }) {
     for (let i = 0; i < programme.nombreRep; i++) {
         sessions.push({
             temps: programme.tpsEffort,
-            titre: "Let's goo"
+            titre: "Let's go"
         });
         sessions.push({
             temps: programme.tpsRepos,
@@ -47,7 +49,7 @@ export default function Timer({ route }) {
                 onFinish={() => setIndexSession(i + 1)}
                 runnigImmediately={i !== 0} />));
 
-    listSession.push((<View><Text>Bravo vous avez fini</Text></View>));
+    listSession.push((<View><Text style={styles.text}>Bravo vous avez fini</Text></View>));
 
     return (<View>{listSession[indexSession]}</View>);
 
@@ -70,6 +72,10 @@ const styles = StyleSheet.create({
         borderRadius: 4
         //   alignItems: 'center',
         //   justifyContent: 'center',
+    },
+    text: {
+        fontSize: 24,
+        color: colorPanel.main
     },
     roundButton1: {
         width: 100,
@@ -102,8 +108,8 @@ function SessionDisplay({ session, onFinish, runnigImmediately }) {
 
     return (
         <View style={[styles.center]}>
-            <View><Text>{sessionActuel.titre}</Text></View>
-            <View >
+            <View style={{ paddingBottom: 40 }}><Text style={styles.text}>{sessionActuel.titre}</Text></View>
+            <View style={{ paddingBottom: 20 }}>
                 <CountdownCircleTimer
                     isPlaying={isPlaying}
                     duration={timerRemainingSave}
@@ -115,7 +121,7 @@ function SessionDisplay({ session, onFinish, runnigImmediately }) {
                 >
                     {({ remainingTime }) => (
                         <View>
-                            <Text adjustsFontSizeToFit>{remainingTime}</Text>
+                            <Text style={styles.text}>{remainingTime}</Text>
                         </View>)
                     }
                 </CountdownCircleTimer>
