@@ -20,6 +20,9 @@
     "ios": {
       "supportsTablet": true
     },
+    "cli": {
+      "appVersionSource": "remote"
+    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
