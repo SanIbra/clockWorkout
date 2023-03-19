@@ -1,7 +1,10 @@
 
 import React, { Component } from 'react';
-import { TextInput, Text, StyleSheet, View, Pressable } from 'react-native';
+import { TextInput, StyleSheet, View, Pressable } from 'react-native';
 import { colorPanel } from '../components/Constants';
+import { Text, Button } from 'react-native-paper';
+
+
 import { TimeUtils } from './utils/TimeUtils';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -29,9 +32,9 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
         inputStyle: {
             fontSize: 24,
             width: '50%',
-            borderWidth: 2,
+            borderWidth: 1,
             borderRadius: 10,
-            borderColor: 'grey',
+            borderColor: '#cacbcc',
             textAlign: 'center'
         },
         launchButton: {
@@ -40,7 +43,7 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
             backgroundColor: colorPanel.main,
             height: '90%',
             width: '90%',
-            borderRadius: 10,
+            borderRadius: 50,
             elevation: 10,
         }
 
@@ -65,7 +68,7 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
         }
 
         const input = (title, updateFonction, initialValue) => <View style={{ alignItems: 'center' }}>
-            <Text style={[this.styles.text, { marginBottom: 4 }]} >{title} </Text>
+            <Text variant="titleLarge" style={[{ marginBottom: 4 }]} >{title} </Text>
             <TextInput
                 style={[this.styles.inputStyle]}
                 defaultValue={initialValue + ""}

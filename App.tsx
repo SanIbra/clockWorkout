@@ -6,6 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SetUpScreen from './components/SetUpScreen';
 import { colorPanel } from './components/Constants';
+import { Provider as PaperProvider } from 'react-native-paper';
 
 const styles = StyleSheet.create({
   container: {
@@ -34,19 +35,20 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-
-        <Stack.Screen name="Préparation" component={SetUpScreen} />
-        <Stack.Screen name="Chrono" component={HomeScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <PaperProvider>
+      <NavigationContainer>
+        <StatusBar style='auto' />
+        <Stack.Navigator>
+          <Stack.Screen name="Préparation" component={SetUpScreen} />
+          <Stack.Screen name="Chrono" component={HomeScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </PaperProvider>
   )
 
   function HomeScreen({ route }) {
     return (
       <View style={[styles.container]}>
-        <StatusBar backgroundColor={colorPanel.main}  ></StatusBar>
         <View style={{ flex: 1 }} >
         </View>
         <View style={{ flex: 4, justifyContent: 'center' }} >
