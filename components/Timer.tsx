@@ -30,6 +30,7 @@ export default function Timer({ route }) {
     const programme: TimerSession = route.params;
     const sessions: Session[] = [];
 
+    console.log("programmes", programme)
     const [indexSession, setIndexSession] = React.useState(0);
     for (let i = 0; i < programme.nombreRep; i++) {
         sessions.push({
@@ -51,8 +52,14 @@ export default function Timer({ route }) {
 
     listSession.push((<View><Text style={styles.text}>Bravo vous avez fini</Text></View>));
 
-    return (<View>{listSession[indexSession]}</View>);
-
+    return (<View style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
+            <Text>Serie {indexSession} / {listSession.length - 1}</Text>
+        </View>
+        <View style={{ flex: 5 }}>
+            {listSession[indexSession]}
+        </View>
+    </View>);
 }
 
 const styles = StyleSheet.create({
