@@ -1,8 +1,10 @@
 
 import React, { Component } from 'react';
-import { Button, TextInput, Text, StyleSheet, View, Pressable } from 'react-native';
+import { TextInput, Text, StyleSheet, View, Pressable } from 'react-native';
 import { colorPanel } from '../components/Constants';
 import { TimeUtils } from './utils/TimeUtils';
+import { Ionicons } from '@expo/vector-icons';
+
 interface SetUpState {
     nombreRep: number,
     tpsRepos: number,
@@ -174,41 +176,54 @@ export function InputTime({ title, updateFonction, initialValue }) {
 
 
     const initialValueNumber = initialValue ? initialValue : 0;
-    const [secondes, setSecondes] = React.useState(TimeUtils.getSecondesOfTime(initialValueNumber));
-    const [minutes, setMinutes] = React.useState(TimeUtils.getMinutesOfTime(initialValueNumber));
+    const [secondes, setSecondes] = React.useState(TimeUtils.getSecondesOfTime(initialValueNumber) + "");
+    const [minutes, setMinutes] = React.useState(TimeUtils.getMinutesOfTime(initialValueNumber) + "");
 
     const convertToNumber = (minutesString) => {
         const num = parseInt(minutesString);
         return isNaN(num) ? 0 : num;
     };
-    const setUpTime = (minutes, secondes) => {
-        const newVal = TimeUtils.convertToTime(minutes, secondes);
+    const setUpTime = (minutes: string, secondes: string) => {
+        const newVal = TimeUtils.convertToTime(convertToNumber(minutes), convertToNumber(secondes));
         console.log("new Val =", newVal);
         updateFonction(newVal);
     }
     return (
         <View style={{ alignItems: 'center' }} >
-            <View>
+            <View >
                 <Text style={[styles.text, { marginBottom: 4 }]} >{title} </Text>
             </View>
-            <View style={styles.selectTime}>
-            <TextInput
-                style={[styles.inputTimeStyle]}
-                defaultValue={minutes + ""}
-                
-                onChangeText={(newValue) => { var newMin = convertToNumber(newValue); setMinutes(newMin); setUpTime(newMin, secondes) }}
-                placeholderTextColor="#60605e"
-                keyboardType={'numeric'}
-            />
-            <Text style={styles.text}>:</Text>
-            <TextInput
-                style={[styles.inputTimeStyle]}
-                defaultValue={secondes + ""}
-                onChangeText={(newValue) => { var newSec = convertToNumber(newValue); setSecondes(newSec); setUpTime(minutes, newSec) }}
-                placeholderTextColor="#60605e"
-                keyboardType={'numeric'}
-            />
-        </View>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="remove-circle-outline"
+                    size={24}
+                    color="black"
+                    onPress={() => setSecondes(sec => (convertToNumber(sec) - 1) + "")}
+                    style={{ margin: 10 }} />
+                <View style={styles.selectTime}>
+                    <TextInput
+                        style={[styles.inputTimeStyle]}
+                        defaultValue={minutes + ""}
+                        onChangeText={(newValue) => { setMinutes(newValue); setUpTime(newValue, secondes) }}
+                        placeholderTextColor="#60605e"
+                        keyboardType={'numeric'}
+                    />
+                    <Text style={styles.text}>:</Text>
+                    <TextInput
+                        style={[styles.inputTimeStyle]}
+                        defaultValue={secondes + ""}
+                        onChangeText={(newValue) => { setSecondes(newValue); setUpTime(minutes, newValue) }}
+                        placeholderTextColor="#60605e"
+                        keyboardType={'numeric'}
+                    />
+                </View>
+                <Ionicons
+                    name="add-circle-outline"
+                    style={{ margin: 10 }}
+                    size={24}
+                    color="black"
+                    onPress={() => setSecondes(sec => (convertToNumber(sec) + 1) + "")} />
+            </View>
         </View >);
 }
 
