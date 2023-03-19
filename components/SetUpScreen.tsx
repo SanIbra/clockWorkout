@@ -1,12 +1,12 @@
 
 import React, { Component } from 'react';
-import { TextInput, StyleSheet, View, Pressable } from 'react-native';
+import { TextInput, StyleSheet, View } from 'react-native';
 import { colorPanel } from '../components/Constants';
-import { Text, Button } from 'react-native-paper';
+import { Text, TouchableRipple } from 'react-native-paper';
 
 
 import { TimeUtils } from './utils/TimeUtils';
-import { Ionicons } from '@expo/vector-icons';
+import { IconButton, MD3Colors } from 'react-native-paper';
 
 interface SetUpState {
     nombreRep: number,
@@ -105,12 +105,13 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
                     />
                 </View>
                 <View style={{ flex: 1, justifyContent: "center", alignItems: 'center', width: '100%' }}>
-                    <Pressable
+                    <TouchableRipple
                         style={this.styles.launchButton}
                         onPress={() => this.launchTimer()}
+                        rippleColor={colorPanel.main}
                     >
                         <Text style={{ color: "white", fontSize: 20 }}>Lancer la session</Text>
-                    </Pressable>
+                    </TouchableRipple>
                 </View>
             </View >);
     }
@@ -130,23 +131,9 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
 export function InputTime({ title, updateFonction, initialValue }) {
 
     const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
         text: {
             fontSize: 24,
             color: colorPanel.main
-        },
-        inputStyle: {
-            fontSize: 24,
-            width: '50%',
-            borderWidth: 2,
-            borderRadius: 10,
-            borderColor: 'grey',
-            textAlign: 'center'
         },
         selectTime: {
             width: '50%',
@@ -164,17 +151,7 @@ export function InputTime({ title, updateFonction, initialValue }) {
             borderRadius: 10,
             borderColor: 'grey',
             textAlign: 'center'
-        },
-        launchButton: {
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: colorPanel.main,
-            height: '90%',
-            width: '90%',
-            borderRadius: 10,
-            elevation: 10,
         }
-
     })
 
 
@@ -198,11 +175,12 @@ export function InputTime({ title, updateFonction, initialValue }) {
             </View>
 
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="remove-circle-outline"
+                <IconButton
+                    icon="minus-circle-outline"
+                    iconColor={MD3Colors.primary0}
                     size={24}
-                    color="black"
                     onPress={() => setSecondes(sec => (convertToNumber(sec) - 1) + "")}
-                    style={{ margin: 10 }} />
+                />
                 <View style={styles.selectTime}>
                     <TextInput
                         style={[styles.inputTimeStyle]}
@@ -220,12 +198,12 @@ export function InputTime({ title, updateFonction, initialValue }) {
                         keyboardType={'numeric'}
                     />
                 </View>
-                <Ionicons
-                    name="add-circle-outline"
-                    style={{ margin: 10 }}
+                <IconButton
+                    icon="plus-circle-outline"
+                    iconColor={MD3Colors.primary0}
                     size={24}
-                    color="black"
-                    onPress={() => setSecondes(sec => (convertToNumber(sec) + 1) + "")} />
+                    onPress={() => setSecondes(sec => (convertToNumber(sec) + 1) + "")}
+                />
             </View>
         </View >);
 }
