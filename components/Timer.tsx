@@ -30,7 +30,7 @@ export default function Timer({ route }) {
     const programme: TimerSession = route.params;
     const sessions: Session[] = [];
     const [indexSession, setIndexSession] = useState(0);
-    
+    const [lastSerie, setLastSerie] = useState(false);
     for (let i = 0; i < programme.nombreRep; i++) {
         sessions.push({
             temps: programme.tpsEffort,
@@ -48,12 +48,13 @@ export default function Timer({ route }) {
     const onFinish = () => {
         var next = indexSession + 1;
         if (next == sessions.length) {
+            setLastSerie(true)
             return;
         }
         setIndexSession(indexSession => indexSession + 1);
         setTempsRestant(sessions[next].temps)
 
-        console.log(next,sessions[next])
+
     }
     const timeUp = async () => {
         const sound = new Sound();
@@ -64,37 +65,53 @@ export default function Timer({ route }) {
         onFinish();
     }
 
-    return (<View style={{ flex: 1 }}>
-        <View style={{ flex: 1 }}>
-            <Text>Serie {indexSession} / {sessions.length - 1}</Text>
-        </View>
-        <View style={{ flex: 5 }}>
-            <CountdownCircleTimer
-                key={indexSession}
-                isPlaying={isPlaying}
-                duration={tempsRestant}
-                // initialRemainingTime={timerRemaining}
-                colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+    const timer = (
+        <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ padding: 15 }}>
+                <Text style={styles.text}>Serie {indexSession} / {sessions.length - 1}</Text>
+            </View>
+            <View style={{ padding: 15 }}>
+                <CountdownCircleTimer
+                    key={indexSession}
+                    isPlaying={isPlaying}
+                    duration={tempsRestant}
+                    // initialRemainingTime={timerRemaining}
+                    colors={['#004777', '#F7B801', '#A30000', '#A30000']}
 
-                colorsTime={[7, 5, 2, 0]}
-                onComplete={total => { timeUp(); }}
-            // onUpdate={remainingTime => { setTimerRemainingSave(remainingTime) }}
-            >
-                {({ remainingTime }) => (
-                    <View>
-                        <Text style={styles.text}>{remainingTime}</Text>
-                    </View>)
+                    colorsTime={[7, 5, 2, 0]}
+                    onComplete={total => { timeUp(); }}
+                // onUpdate={remainingTime => { setTimerRemainingSave(remainingTime) }}
+                >
+                    {({ remainingTime }) => (
+                        <View>
+                            <Text style={styles.text}>{remainingTime}</Text>
+                        </View>)
+                    }
+                </CountdownCircleTimer>
+            </View>
+            <View style={{ padding: 30 }}>
+                {isPlaying ?
+                    <FontAwesome name="pause" size={24} color="black" onPress={() => setIsPlaying(false)} />
+                    :
+                    <FontAwesome name="play" size={24} color="black" onPress={() => setIsPlaying(true)} />
                 }
-            </CountdownCircleTimer>
+            </View>
         </View>
-        <View >
-            {isPlaying ?
-                <FontAwesome name="pause" size={24} color="black" onPress={() => setIsPlaying(false)} />
-                :
-                <FontAwesome name="play" size={24} color="black" onPress={() => setIsPlaying(true)} />
-            }
+    )
+
+    const finDeSession = (
+        <View style={{ flex: 5, justifyContent: 'center' }}>
+            <Text style={[styles.text, { textAlign: 'center' }]}>
+                Bravo ! Vous avez terminé votre session!!
+            </Text>
         </View>
-    </View>);
+    )
+
+    return (
+        <View style={{ flex: 1 }}>
+            {(lastSerie) ? finDeSession : timer}
+            <View style={{ flex: 1 }}></View>
+        </View>);
 }
 
 const styles = StyleSheet.create({
@@ -132,53 +149,3 @@ const styles = StyleSheet.create({
         mainColor: 'black'
     }
 })
-function SessionDisplay({ session, onFinish, runnigImmediately }) {
-    const sessionActuel = session as Session;
-    const timerRemaining = sessionActuel.temps;
-    const [timerRemainingSave, setTimerRemainingSave] = React.useState(timerRemaining);
-    const [isPlaying, setIsPlaying] = React.useState(false);
-
-    const timeUp = async () => {
-        const sound = new Sound();
-        await sound.loadAsync(require('./../assets/sounds/beep-beep.mp3'));
-        await sound.playAsync();
-
-        setTimeout(() => sound.unloadAsync(), 1000)
-        // setIsPlaying(false) // les states sont partagé dans toute l'appli!!
-        onFinish();
-    }
-
-    return (
-        <View style={[styles.center]}>
-            <View style={{ paddingBottom: 40 }}><Text style={styles.text}>{sessionActuel.titre}</Text></View>
-            <View style={{ paddingBottom: 20 }}>
-                <CountdownCircleTimer
-                    isPlaying={isPlaying}
-                    duration={timerRemainingSave}
-                    initialRemainingTime={timerRemaining}
-                    colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-
-                    colorsTime={[7, 5, 2, 0]}
-                    onComplete={total => { timeUp(); return { shouldRepeat: true } }}
-                // onUpdate={remainingTime => { setTimerRemainingSave(remainingTime) }}
-                >
-                    {({ remainingTime }) => (
-                        <View>
-                            <Text style={styles.text}>{remainingTime}</Text>
-                        </View>)
-                    }
-                </CountdownCircleTimer>
-            </View>
-            <View >
-                {isPlaying ?
-                    <FontAwesome name="pause" size={24} color="black" onPress={() => setIsPlaying(false)} />
-                    :
-                    <FontAwesome name="play" size={24} color="black" onPress={() => setIsPlaying(true)} />
-                }
-            </View>
-            {/* <View style={{ flex: 1, flexDirection: 'row' }}>
-                <FontAwesome name="repeat" size={24} color="black" onPress={() => this.reset()} />
-            </View> */}
-
-        </View >);
-}

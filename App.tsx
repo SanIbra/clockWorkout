@@ -40,28 +40,9 @@ export default function App() {
         <StatusBar style='auto' />
         <Stack.Navigator>
           <Stack.Screen name="Préparation" component={SetUpScreen} />
-          <Stack.Screen name="Chrono" component={HomeScreen} />
+          <Stack.Screen name="Chrono" component={Timer} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
   )
-
-  function HomeScreen({ route }) {
-    return (
-      <View style={[styles.container]}>
-        <View style={{ flex: 1 }} >
-        </View>
-        <View style={{ flex: 4, justifyContent: 'center' }} >
-          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
-            <Timer
-              route={route}
-            />
-          </View>
-          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
-          </View>
-        </View>
-        <View style={{ flex: 1 }} >
-        </View>
-      </View>)
-  }
 }
