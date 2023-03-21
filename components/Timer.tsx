@@ -29,9 +29,8 @@ export default function Timer({ route }) {
 
     const programme: TimerSession = route.params;
     const sessions: Session[] = [];
-
-    console.log("programmes", programme)
-    const [indexSession, setIndexSession] = React.useState(0);
+    const [indexSession, setIndexSession] = useState(0);
+    
     for (let i = 0; i < programme.nombreRep; i++) {
         sessions.push({
             temps: programme.tpsEffort,
@@ -43,21 +42,57 @@ export default function Timer({ route }) {
         });
     }
 
-    const listSession =
-        sessions
-            .map((s, i) => (<SessionDisplay
-                session={s}
-                onFinish={() => setIndexSession(i + 1)}
-                runnigImmediately={i !== 0} />));
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [tempsRestant, setTempsRestant] = useState(sessions[0].temps);
 
-    listSession.push((<View><Text style={styles.text}>Bravo vous avez fini</Text></View>));
+    const onFinish = () => {
+        var next = indexSession + 1;
+        if (next == sessions.length) {
+            return;
+        }
+        setIndexSession(indexSession => indexSession + 1);
+        setTempsRestant(sessions[next].temps)
+
+        console.log(next,sessions[next])
+    }
+    const timeUp = async () => {
+        const sound = new Sound();
+        await sound.loadAsync(require('./../assets/sounds/beep-beep.mp3'));
+        await sound.playAsync();
+
+        setTimeout(() => sound.unloadAsync(), 1000)
+        onFinish();
+    }
 
     return (<View style={{ flex: 1 }}>
         <View style={{ flex: 1 }}>
-            <Text>Serie {indexSession} / {listSession.length - 1}</Text>
+            <Text>Serie {indexSession} / {sessions.length - 1}</Text>
         </View>
         <View style={{ flex: 5 }}>
-            {listSession[indexSession]}
+            <CountdownCircleTimer
+                key={indexSession}
+                isPlaying={isPlaying}
+                duration={tempsRestant}
+                // initialRemainingTime={timerRemaining}
+                colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+
+                colorsTime={[7, 5, 2, 0]}
+                onComplete={total => { timeUp(); }}
+            // onUpdate={remainingTime => { setTimerRemainingSave(remainingTime) }}
+            >
+                {({ remainingTime }) => (
+                    <View>
+                        <Text style={styles.text}>{remainingTime}</Text>
+                    </View>)
+                }
+            </CountdownCircleTimer>
+        </View>
+        <View >
+            {isPlaying ?
+                <FontAwesome name="pause" size={24} color="black" onPress={() => setIsPlaying(false)} />
+                :
+                <FontAwesome name="play" size={24} color="black" onPress={() => setIsPlaying(true)} />
+            }
         </View>
     </View>);
 }
@@ -101,7 +136,7 @@ function SessionDisplay({ session, onFinish, runnigImmediately }) {
     const sessionActuel = session as Session;
     const timerRemaining = sessionActuel.temps;
     const [timerRemainingSave, setTimerRemainingSave] = React.useState(timerRemaining);
-    const [isPlaying, setIsPlaying] = React.useState(runnigImmediately);
+    const [isPlaying, setIsPlaying] = React.useState(false);
 
     const timeUp = async () => {
         const sound = new Sound();
@@ -122,6 +157,7 @@ function SessionDisplay({ session, onFinish, runnigImmediately }) {
                     duration={timerRemainingSave}
                     initialRemainingTime={timerRemaining}
                     colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+
                     colorsTime={[7, 5, 2, 0]}
                     onComplete={total => { timeUp(); return { shouldRepeat: true } }}
                 // onUpdate={remainingTime => { setTimerRemainingSave(remainingTime) }}
