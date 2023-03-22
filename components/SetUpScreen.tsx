@@ -128,7 +128,13 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
 }
 
 
-export function InputTime({ title, updateFonction, initialValue }) {
+
+interface InputTimeProps {
+    title: string,
+    updateFonction: (newValue: number) => void,
+    initialValue: number
+}
+export function InputTime({ title, updateFonction, initialValue }: InputTimeProps) {
 
     const styles = StyleSheet.create({
         text: {
@@ -165,9 +171,31 @@ export function InputTime({ title, updateFonction, initialValue }) {
     };
     const setUpTime = (minutes: string, secondes: string) => {
         const newVal = TimeUtils.convertToTime(convertToNumber(minutes), convertToNumber(secondes));
-        console.log("new Val =", newVal);
+        const newMinutes = TimeUtils.getMinutesOfTime(newVal);
+        const newSecondes = TimeUtils.getSecondesOfTime(newVal);
+        setMinutes(newMinutes + "");
+        setSecondes(newSecondes + "")
         updateFonction(newVal);
     }
+
+
+    const addTime = (nbSec: number) => {
+        setSecondes(sec => {
+            var newSec = convertToNumber(sec) + nbSec;
+            setUpTime(minutes, newSec + "");
+            return newSec + "";
+        })
+    };
+
+
+    const clearInput = (input: string): string => {
+        if (!input) {
+            return "";
+        }
+        const clear = [...input.trim()].filter(c => c >= '0' && c <= '9').join("")
+        return clear;
+    }
+
     return (
         <View style={{ alignItems: 'center' }} >
             <View >
@@ -179,13 +207,13 @@ export function InputTime({ title, updateFonction, initialValue }) {
                     icon="minus-circle-outline"
                     iconColor={MD3Colors.primary0}
                     size={24}
-                    onPress={() => setSecondes(sec => (convertToNumber(sec) - 1) + "")}
+                    onPress={() => addTime(-1)}
                 />
                 <View style={styles.selectTime}>
                     <TextInput
                         style={[styles.inputTimeStyle]}
                         defaultValue={minutes + ""}
-                        onChangeText={(newValue) => { setMinutes(newValue); setUpTime(newValue, secondes) }}
+                        onChangeText={(newValue) => { setUpTime(clearInput(newValue), secondes) }}
                         placeholderTextColor="#60605e"
                         keyboardType={'numeric'}
                     />
@@ -193,7 +221,7 @@ export function InputTime({ title, updateFonction, initialValue }) {
                     <TextInput
                         style={[styles.inputTimeStyle]}
                         defaultValue={secondes + ""}
-                        onChangeText={(newValue) => { setSecondes(newValue); setUpTime(minutes, newValue) }}
+                        onChangeText={(newValue) => { setUpTime(minutes, clearInput(newValue)) }}
                         placeholderTextColor="#60605e"
                         keyboardType={'numeric'}
                     />
@@ -202,7 +230,7 @@ export function InputTime({ title, updateFonction, initialValue }) {
                     icon="plus-circle-outline"
                     iconColor={MD3Colors.primary0}
                     size={24}
-                    onPress={() => setSecondes(sec => (convertToNumber(sec) + 1) + "")}
+                    onPress={() => addTime(+1)}
                 />
             </View>
         </View >);
