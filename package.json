@@ -6,7 +6,8 @@
     "start": "expo start --tunnel",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build": "eas build --no-wait -p android "
   },
   "dependencies": {
     "@react-navigation/native-stack": "^6.9.11",
