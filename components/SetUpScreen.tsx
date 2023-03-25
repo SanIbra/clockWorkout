@@ -1,9 +1,8 @@
 
 import React, { Component } from 'react';
-import { TextInput, StyleSheet, View } from 'react-native';
+import { Switch, TextInput, StyleSheet, View } from 'react-native';
 import { colorPanel } from '../components/Constants';
-import { Text, TouchableRipple } from 'react-native-paper';
-
+import { FAB, Text, TouchableRipple } from 'react-native-paper';
 
 import { TimeUtils } from './utils/TimeUtils';
 import { IconButton, MD3Colors } from 'react-native-paper';
@@ -11,7 +10,9 @@ import { IconButton, MD3Colors } from 'react-native-paper';
 interface SetUpState {
     nombreRep: number,
     tpsRepos: number,
-    tpsEffort: number
+    tpsEffort: number,
+    isTpsReposIndertermine: boolean,
+    isTpsEffortIndertermine: boolean
 }
 export class SetUpScreen extends Component<{ navigation }, SetUpState> {
 
@@ -45,7 +46,8 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
             width: '90%',
             borderRadius: 50,
             elevation: 10,
-        }
+        },
+        addFab: {}
 
     })
 
@@ -55,28 +57,14 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
         this.state = {
             nombreRep: 3,
             tpsRepos: 3,
-            tpsEffort: 5
+            tpsEffort: 5,
+            isTpsEffortIndertermine: false,
+            isTpsReposIndertermine: false
         };
     }
 
     render() {
-        const toInt = nb => {
-            if (!nb) {
-                return 0;
-            }
-            return parseInt(nb);
-        }
-
-        const input = (title, updateFonction, initialValue) => <View style={{ alignItems: 'center' }}>
-            <Text variant="titleLarge" style={[{ marginBottom: 4 }]} >{title} </Text>
-            <TextInput
-                style={[this.styles.inputStyle]}
-                defaultValue={initialValue + ""}
-                onChangeText={updateFonction}
-                placeholderTextColor="#60605e"
-                keyboardType={'numeric'}
-            />
-        </View>;
+        const toInt = nb => !nb ? 0 : parseInt(nb)
 
         return (
             <View style={[this.styles.container]}>
@@ -95,15 +83,22 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
 
                     <InputTime
                         title="Durée d'effort (en secondes)"
-                        updateFonction={input => this.setState({ tpsEffort: toInt(input) })}
+                        updateFonction={(input, bool) => this.setState({ tpsEffort: toInt(input), isTpsEffortIndertermine: bool })}
                         initialValue={this.state.tpsEffort}
+                        isTempsInterdermine={this.state.isTpsEffortIndertermine}
                     />
                     <InputTime
                         title="Durée de récuperation (en secondes)"
-                        updateFonction={input => this.setState({ tpsRepos: toInt(input) })}
+                        updateFonction={(input, bool) => this.setState({ tpsRepos: toInt(input), isTpsReposIndertermine: bool })}
                         initialValue={this.state.tpsRepos}
+                        isTempsInterdermine={this.state.isTpsReposIndertermine}
                     />
                 </View>
+                {/* <FAB
+                    icon="plus"
+                    style={this.styles.addFab}
+                    onPress={() => this.props.navigation.navigate('Créer session personnalisé')}
+                /> */}
                 <View style={{ flex: 1, justifyContent: "center", alignItems: 'center', width: '100%' }}>
                     <TouchableRipple
                         style={this.styles.launchButton}
@@ -121,7 +116,9 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
         this.props.navigation.navigate('Chrono', {
             nombreRep: this.state.nombreRep,
             tpsRepos: this.state.tpsRepos,
-            tpsEffort: this.state.tpsEffort
+            tpsEffort: this.state.tpsEffort,
+            isTpsReposIndertermine: this.state.isTpsReposIndertermine,
+            isTpsEffortIndertermine: this.state.isTpsEffortIndertermine
         });
     }
 
@@ -131,10 +128,11 @@ export class SetUpScreen extends Component<{ navigation }, SetUpState> {
 
 interface InputTimeProps {
     title: string,
-    updateFonction: (newValue: number) => void,
-    initialValue: number
+    updateFonction: (newValue: number, isTempsInterdermine) => void,
+    initialValue: number,
+    isTempsInterdermine: boolean
 }
-export function InputTime({ title, updateFonction, initialValue }: InputTimeProps) {
+export function InputTime({ title, updateFonction, initialValue, isTempsInterdermine }: InputTimeProps) {
 
     const styles = StyleSheet.create({
         text: {
@@ -175,8 +173,10 @@ export function InputTime({ title, updateFonction, initialValue }: InputTimeProp
         const newSecondes = TimeUtils.getSecondesOfTime(newVal);
         setMinutes(newMinutes + "");
         setSecondes(newSecondes + "")
-        updateFonction(newVal);
+        updateFonction(newVal, !!isTempsInterdermine);
     }
+
+
 
 
     const addTime = (nbSec: number) => {
@@ -193,7 +193,11 @@ export function InputTime({ title, updateFonction, initialValue }: InputTimeProp
             return "";
         }
         const clear = [...input.trim()].filter(c => c >= '0' && c <= '9').join("")
-        return clear;
+    }
+
+    const updateTempsIndetermine = (newV) => {
+        const newVal = TimeUtils.convertToTime(convertToNumber(minutes), convertToNumber(secondes));
+        updateFonction(newVal, newV);
     }
 
     return (
@@ -201,8 +205,15 @@ export function InputTime({ title, updateFonction, initialValue }: InputTimeProp
             <View >
                 <Text style={[styles.text, { marginBottom: 4 }]} >{title} </Text>
             </View>
+            <View style={{ flexDirection: 'row' }}>
+                <Switch
+                    onValueChange={updateTempsIndetermine}
+                    value={isTempsInterdermine}
+                />
+                <Text style={[styles.text, { height: '100%', textAlignVertical: 'center' }]}> sans durée</Text>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            </View>
+            {isTempsInterdermine ? null : <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <IconButton
                     icon="minus-circle-outline"
                     iconColor={MD3Colors.primary0}
@@ -232,7 +243,7 @@ export function InputTime({ title, updateFonction, initialValue }: InputTimeProp
                     size={24}
                     onPress={() => addTime(+1)}
                 />
-            </View>
+            </View>}
         </View >);
 }
 

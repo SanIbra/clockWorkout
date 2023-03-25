@@ -7,6 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SetUpScreen from './components/SetUpScreen';
 import { colorPanel } from './components/Constants';
 import { Provider as PaperProvider } from 'react-native-paper';
+import SetUpAdvanced from './components/SetUpAvanced';
 
 const styles = StyleSheet.create({
   container: {
@@ -41,6 +42,7 @@ export default function App() {
         <Stack.Navigator>
           <Stack.Screen name="Préparation" component={SetUpScreen} />
           <Stack.Screen name="Chrono" component={Timer} />
+          <Stack.Screen name="Créer session personnalisé" component={SetUpAdvanced} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>

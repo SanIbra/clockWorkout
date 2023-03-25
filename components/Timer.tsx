@@ -1,11 +1,12 @@
 import { Sound } from 'expo-av/build/Audio';
 import React, { Component, Provider, useState } from 'react';
-import { Button, Text, TouchableOpacity, StyleSheet, View } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet, View } from 'react-native';
 import PropTypes from 'prop-types';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
 import { FontAwesome } from '@expo/vector-icons';
 import { TimerSession } from './TimerSession';
 import { colorPanel } from './Constants';
+import { Button } from 'react-native-paper';
 
 type TimerProps = {
     timer: number,
@@ -23,6 +24,7 @@ type TimerState = {
 export interface Session {
     temps: number;
     titre: string;
+    sansDuree: boolean;
 }
 
 export default function Timer({ route }) {
@@ -34,11 +36,13 @@ export default function Timer({ route }) {
     for (let i = 0; i < programme.nombreRep; i++) {
         sessions.push({
             temps: programme.tpsEffort,
-            titre: "Let's go"
+            titre: "Let's go",
+            sansDuree: programme.isTpsEffortIndertermine
         });
         sessions.push({
             temps: programme.tpsRepos,
-            titre: "Récuperation"
+            titre: "Récuperation",
+            sansDuree: programme.isTpsReposIndertermine
         });
     }
 
@@ -107,9 +111,22 @@ export default function Timer({ route }) {
         </View>
     )
 
+    const SessionSansDuree = (titre) => (
+        <View style={{ flex: 5, justifyContent: 'space-evenly' }}>
+            <Text style={[styles.text, { textAlign: 'center' }]}>
+                {titre}
+            </Text>
+            <Button icon="arrow-right-circle-outline"
+                mode="contained"
+                onPress={() => { setIsPlaying(true); onFinish() }}>
+                Suivant
+            </Button>
+        </View>
+    )
+
     return (
         <View style={{ flex: 1 }}>
-            {(lastSerie) ? finDeSession : timer}
+            {(lastSerie) ? finDeSession : (sessions[indexSession].sansDuree ? SessionSansDuree(sessions[indexSession].titre) : timer)}
             <View style={{ flex: 1 }}></View>
         </View>);
 }
