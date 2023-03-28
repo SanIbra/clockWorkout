@@ -180,8 +180,12 @@ export function InputTime({ title, updateFonction, initialValue, isTempsInterder
 
 
     const addTime = (nbSec: number) => {
+
         setSecondes(sec => {
             var newSec = convertToNumber(sec) + nbSec;
+            if (minutes == "0" && newSec < 0) {
+                return sec;
+            }
             setUpTime(minutes, newSec + "");
             return newSec + "";
         })
