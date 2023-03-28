@@ -24,6 +24,8 @@ type TimerState = {
 
 
 export interface Session {
+    numberSerie: number;
+    numberSerieTotal: number;
     temps: number;
     titre: string;
     sansDuree: boolean;
@@ -37,15 +39,22 @@ export default function Timer({ route }) {
     const [lastSerie, setLastSerie] = useState(false);
     for (let i = 0; i < programme.nombreRep; i++) {
         sessions.push({
+            numberSerie: i + 1,
+            numberSerieTotal: programme.nombreRep,
             temps: programme.tpsEffort,
             titre: "Let's go",
             sansDuree: programme.isTpsEffortIndertermine
         });
-        sessions.push({
-            temps: programme.tpsRepos,
-            titre: "Récuperation",
-            sansDuree: programme.isTpsReposIndertermine
-        });
+        // skip last pause
+        if (i != programme.nombreRep - 1) {
+            sessions.push({
+                numberSerie: i + 1,
+                numberSerieTotal: programme.nombreRep,
+                temps: programme.tpsRepos,
+                titre: "Récuperation",
+                sansDuree: programme.isTpsReposIndertermine
+            });
+        }
     }
 
     const [isPlaying, setIsPlaying] = useState(false);
@@ -81,11 +90,14 @@ export default function Timer({ route }) {
         onFinish();
     }
 
-    const timer = (
+    const timer = (titre: string) => (
         <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center' }}>
             <View style={{ padding: 15 }}>
-                <Text style={styles.text}>Serie {indexSession} / {sessions.length - 1}</Text>
+                <Text style={styles.text}>Série {sessions[indexSession].numberSerie} / {sessions[indexSession].numberSerieTotal}</Text>
             </View>
+            <Text style={[styles.text, { textAlign: 'center' }]}>
+                {titre}
+            </Text>
             <View style={{ padding: 15 }}>
                 <CountdownCircleTimer
                     key={indexSession}
@@ -123,9 +135,12 @@ export default function Timer({ route }) {
         </View>
     )
 
-    const SessionSansDuree = (titre) => (
-        <View style={{ flex: 5, justifyContent: 'space-evenly' }}>
-            <Text style={[styles.text, { textAlign: 'center' }]}>
+    const SessionSansDuree2 = (titre) => (
+        <View style={{ flex: 5, alignItems: 'center', justifyContent: 'space-evenly' }}>
+            <View style={{ padding: 15 }}>
+                <Text style={styles.text}>Serie {sessions[indexSession].numberSerie} / {sessions[indexSession].numberSerieTotal}</Text>
+            </View>
+            <Text style={[styles.text]}>
                 {titre}
             </Text>
             <Button icon="arrow-right-circle-outline"
@@ -134,11 +149,37 @@ export default function Timer({ route }) {
                 Suivant
             </Button>
         </View>
+
     )
 
+
+    const SessionSansDuree = (titre) => (
+        <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ padding: 15 }}>
+                <Text style={styles.text}>Serie {sessions[indexSession].numberSerie} / {sessions[indexSession].numberSerieTotal}</Text>
+            </View>
+            <Text style={[styles.text]}>
+                {titre}
+            </Text>
+            <View style={{ padding: 15 }}>
+                <Button icon="arrow-right-circle-outline"
+                    mode="contained"
+                    onPress={() => { setIsPlaying(true); onFinish() }}>
+                    Suivant
+                </Button>
+            </View>
+            <View style={{ padding: 30 }}>
+                {/* {isPlaying ?
+                    <FontAwesome name="pause" size={24} color="black" onPress={() => setIsPlaying(false)} />
+                    :
+                    <FontAwesome name="play" size={24} color="black" onPress={() => setIsPlaying(true)} />
+                } */}
+            </View>
+        </View>
+    );
     return (
         <View style={{ flex: 1 }}>
-            {(lastSerie) ? finDeSession : (sessions[indexSession].sansDuree ? SessionSansDuree(sessions[indexSession].titre) : timer)}
+            {(lastSerie) ? finDeSession : (sessions[indexSession].sansDuree ? SessionSansDuree(sessions[indexSession].titre) : timer(sessions[indexSession].titre))}
             <View style={{ flex: 1 }}></View>
         </View>);
 }
