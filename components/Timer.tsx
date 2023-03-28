@@ -7,6 +7,8 @@ import { FontAwesome } from '@expo/vector-icons';
 import { TimerSession } from './TimerSession';
 import { colorPanel } from './Constants';
 import { Button } from 'react-native-paper';
+import { AVPlaybackStatusSuccess } from 'expo-av';
+import { AVPlaybackStatus } from 'expo-av/build/AV.types';
 
 type TimerProps = {
     timer: number,
@@ -62,10 +64,20 @@ export default function Timer({ route }) {
     }
     const timeUp = async () => {
         const sound = new Sound();
-        await sound.loadAsync(require('./../assets/sounds/beep-beep.mp3'));
-        await sound.playAsync();
+        await sound.loadAsync(require('./../assets/sounds/bell.mp3'));
 
-        setTimeout(() => sound.unloadAsync(), 1000)
+        sound.setOnPlaybackStatusUpdate((value: AVPlaybackStatus) => {
+            function isAVPlaybackStatusSuccess(contact: AVPlaybackStatus): contact is AVPlaybackStatusSuccess {
+                return (contact as AVPlaybackStatusSuccess).didJustFinish !== undefined;
+            }
+
+            if (isAVPlaybackStatusSuccess(value)) {
+                const success = value as AVPlaybackStatusSuccess;
+                if (success.didJustFinish)
+                    sound.unloadAsync()
+            }
+        })
+        await sound.playAsync();
         onFinish();
     }
 
