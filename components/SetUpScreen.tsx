@@ -196,7 +196,7 @@ export function InputTime({ title, updateFonction, initialValue, isTempsInterder
         if (!input) {
             return "";
         }
-        const clear = [...input.trim()].filter(c => c >= '0' && c <= '9').join("")
+        return [...input.trim()].filter(c => c >= '0' && c <= '9').join("")
     }
 
     const updateTempsIndetermine = (newV) => {
@@ -227,7 +227,7 @@ export function InputTime({ title, updateFonction, initialValue, isTempsInterder
                 <View style={styles.selectTime}>
                     <TextInput
                         style={[styles.inputTimeStyle]}
-                        defaultValue={minutes + ""}
+                        defaultValue={minutes}
                         onChangeText={(newValue) => { setUpTime(clearInput(newValue), secondes) }}
                         placeholderTextColor="#60605e"
                         keyboardType={'numeric'}
@@ -235,7 +235,7 @@ export function InputTime({ title, updateFonction, initialValue, isTempsInterder
                     <Text style={styles.text}>:</Text>
                     <TextInput
                         style={[styles.inputTimeStyle]}
-                        defaultValue={secondes + ""}
+                        defaultValue={secondes}
                         onChangeText={(newValue) => { setUpTime(minutes, clearInput(newValue)) }}
                         placeholderTextColor="#60605e"
                         keyboardType={'numeric'}
