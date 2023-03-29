@@ -159,16 +159,15 @@ export function InputTime({ title, updateFonction, initialValue, isTempsInterder
     })
 
 
-    const initialValueNumber = initialValue ? initialValue : 0;
-    const [secondes, setSecondes] = React.useState(TimeUtils.getSecondesOfTime(initialValueNumber) + "");
-    const [minutes, setMinutes] = React.useState(TimeUtils.getMinutesOfTime(initialValueNumber) + "");
+    const [secondes, setSecondes] = React.useState(TimeUtils.getSecondesOfTime(initialValue) + "");
+    const [minutes, setMinutes] = React.useState(TimeUtils.getMinutesOfTime(initialValue) + "");
 
     const convertToNumber = (minutesString) => {
         const num = parseInt(minutesString);
         return isNaN(num) ? 0 : num;
     };
-    const setUpTime = (minutes: string, secondes: string) => {
-        const newVal = TimeUtils.convertToTime(convertToNumber(minutes), convertToNumber(secondes));
+    const setUpTime = (minutesN: string, secondesN: string) => {
+        const newVal = TimeUtils.convertToTime(convertToNumber(minutesN), convertToNumber(secondesN));
         const newMinutes = TimeUtils.getMinutesOfTime(newVal);
         const newSecondes = TimeUtils.getSecondesOfTime(newVal);
         setMinutes(newMinutes + "");
