@@ -1,7 +1,6 @@
 import { Sound } from 'expo-av/build/Audio';
-import React, { Component, Provider, useState } from 'react';
-import { Text, TouchableOpacity, StyleSheet, View } from 'react-native';
-import PropTypes from 'prop-types';
+import React, { useEffect, useRef, useState } from 'react';
+import { Text, AppState, StyleSheet, View, Platform } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
 import { FontAwesome } from '@expo/vector-icons';
 import { TimerSession } from './TimerSession';
@@ -9,6 +8,9 @@ import { colorPanel } from './Constants';
 import { Button } from 'react-native-paper';
 import { AVPlaybackStatusSuccess } from 'expo-av';
 import { AVPlaybackStatus } from 'expo-av/build/AV.types';
+// import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import { EventEmitter, Subscription, UnavailabilityError } from 'expo-modules-core';
 
 type TimerProps = {
     timer: number,
@@ -31,12 +33,84 @@ export interface Session {
     sansDuree: boolean;
 }
 
+const BACKGROUND_FETCH_TASK = "TIMER_TASK_BACKGROUND";
+
+
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+    }),
+});
+
+
 export default function Timer({ route }) {
 
     const programme: TimerSession = route.params;
     const sessions: Session[] = [];
     const [indexSession, setIndexSession] = useState(0);
     const [lastSerie, setLastSerie] = useState(false);
+    const [appState, setAppState] = useState(AppState.currentState);
+
+
+    const [expoPushToken, setExpoPushToken] = useState('');
+    const [notification, setNotification] = useState(null);
+    const notificationListener: React.MutableRefObject<Subscription> = useRef();
+    const responseListener: React.MutableRefObject<Subscription> = useRef();
+    const appStateSubscription: React.MutableRefObject<Subscription> = useRef();
+
+
+
+    useEffect(() => {
+
+        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+
+        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+            setNotification(notification);
+            setIsPlaying(false);
+
+            console.log("Passer la ");
+        });
+
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+            console.log(response);
+        });
+
+
+        // this.appStateSubscription TODO voir comment stocker cette event
+        appStateSubscription.current = AppState.addEventListener(
+            'change',
+            nextAppState => {
+                console.log('YOOOOLLOOOOOO', appState, "___", nextAppState, new Date());
+                if (
+                    (appState === "active") &&
+                    nextAppState === 'background'
+                ) {
+                    console.log('App has come to the background!',tempsRestant);
+                    // registerBackgroundFetchAsync();
+
+                    // if (isPlaying)
+                    schedulePushNotification(tempsRestant, "Time's up !!! ");// sessions[indexSession].titre);
+
+                }
+                setAppState(nextAppState);
+            },
+        );
+
+
+        return () => {
+            console.log("UNMONT?")
+            Notifications.removeNotificationSubscription(notificationListener.current);
+            Notifications.removeNotificationSubscription(responseListener.current);
+            appStateSubscription.current?.remove();;
+        };
+
+
+
+    }, []);
+
+
     for (let i = 0; i < programme.nombreRep; i++) {
         sessions.push({
             numberSerie: i + 1,
@@ -58,6 +132,7 @@ export default function Timer({ route }) {
     }
 
     const [isPlaying, setIsPlaying] = useState(false);
+    const [tempsExercice, setTempsExercice] = useState(sessions[0].temps);
     const [tempsRestant, setTempsRestant] = useState(sessions[0].temps);
 
     const onFinish = () => {
@@ -67,8 +142,7 @@ export default function Timer({ route }) {
             return;
         }
         setIndexSession(indexSession => indexSession + 1);
-        setTempsRestant(sessions[next].temps)
-
+        setTempsExercice(sessions[next].temps)
 
     }
     const timeUp = async () => {
@@ -90,6 +164,7 @@ export default function Timer({ route }) {
         onFinish();
     }
 
+
     const timer = (titre: string) => (
         <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center' }}>
             <View style={{ padding: 15 }}>
@@ -102,13 +177,12 @@ export default function Timer({ route }) {
                 <CountdownCircleTimer
                     key={indexSession}
                     isPlaying={isPlaying}
-                    duration={tempsRestant}
-                    // initialRemainingTime={timerRemaining}
+                    duration={tempsExercice}
                     colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-
                     colorsTime={[7, 5, 2, 0]}
+
                     onComplete={total => { timeUp(); }}
-                // onUpdate={remainingTime => { setTimerRemainingSave(remainingTime) }}
+                    onUpdate={remainingTime => { console.log(remainingTime), setTempsRestant(remainingTime) }}
                 >
                     {({ remainingTime }) => (
                         <View>
@@ -219,3 +293,49 @@ const styles = StyleSheet.create({
         mainColor: 'black'
     }
 })
+
+
+async function schedulePushNotification(tempsRestant: number, message: string) {
+    console.log("===>", tempsRestant);
+    await Notifications.scheduleNotificationAsync({
+        content: {
+            title: message,
+            body: 'Retourner sur l\'application pour poursuivre votre session',
+            sound: "./../assets/sounds/bell.mp3",
+            // sound: true
+        },
+        trigger: { seconds: tempsRestant },
+    });
+}
+
+async function registerForPushNotificationsAsync() {
+    let token;
+
+    if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+        });
+    }
+
+    // if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log(token);
+    // } else {
+    //     alert('Must use physical device for Push Notifications');
+    // }
+
+    return token;
+}
