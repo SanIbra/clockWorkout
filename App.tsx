@@ -5,9 +5,14 @@ import Timer from './components/Timer';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SetUpScreen from './components/SetUpScreen';
-import { colorPanel } from './components/Constants';
-import { Provider as PaperProvider } from 'react-native-paper';
+import { Provider as PaperProvider, Text } from 'react-native-paper';
 import SetUpAdvanced from './components/SetUpAvanced';
+import mobileAds, { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
+// import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+
+// La clé est générer sur le site de AdMob. Attention ce n'est pas l'id de l'application mais de la bannière!! 
+const adUnitId = __DEV__ ? TestIds.BANNER : "ca-app-pub-5268342870975556/4105531192";
+const mockBannerAd = true;
 
 const styles = StyleSheet.create({
   container: {
@@ -35,6 +40,16 @@ const styles = StyleSheet.create({
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  React.useEffect(() => {
+    // Fonctionne sans... Je ne sais pas à quoi ça sert
+    if (!mockBannerAd)
+      mobileAds()
+        .initialize()
+        .then(adapterStatuses => {
+          // console.trace(adapterStatuses);
+        });
+  }, []);
+
   return (
     <PaperProvider>
       <NavigationContainer>
@@ -45,6 +60,14 @@ export default function App() {
           <Stack.Screen name="Créer session personnalisé" component={SetUpAdvanced} />
         </Stack.Navigator>
       </NavigationContainer>
+      {mockBannerAd ?
+        <Text style={{ height: 60, textAlign: 'center', backgroundColor: 'gray', fontSize: 20 }} >Espace publicité</Text>
+        :
+        <BannerAd unitId={adUnitId} size={BannerAdSize.FULL_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }} />
+      }
     </PaperProvider>
   )
 }
