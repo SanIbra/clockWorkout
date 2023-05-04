@@ -2,7 +2,7 @@
   "expo": {
     "name": "ClockWorkout",
     "slug": "clockworkout",
-    "version": "1.0.4",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -29,7 +29,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "versionCode": 6,
+      "versionCode": 8,
       "package": "com.bradevia.clockworkout"
     },
     "web": {
@@ -41,5 +41,9 @@
       }
     },
     "owner": "bradevia"
+  },
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-5268342870975556~2018017388",
+    "ios_app_id": "ca-app-pub-xxxxxxxx~xxxxxxxx"
   }
 }
