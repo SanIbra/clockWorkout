@@ -14,12 +14,12 @@
       "distribution": "internal",
       "ios": {
         "resourceClass": "m1-medium"
-      },
-      "android": {
-        "buildType": "apk"
       }
     },
     "production": {
+      "android": {
+        "applicationArchivePath": "android/app/build/outputs/**/*.aab"
+      },
       "ios": {
         "resourceClass": "m1-medium"
       }
