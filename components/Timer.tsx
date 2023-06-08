@@ -1,14 +1,14 @@
-import { Sound } from 'expo-av/build/Audio';
-import React, { Component, Provider, useState } from 'react';
-import { Text, TouchableOpacity, StyleSheet, View } from 'react-native';
-import PropTypes from 'prop-types';
-import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
 import { FontAwesome } from '@expo/vector-icons';
-import { TimerSession } from './TimerSession';
-import { colorPanel } from './Constants';
-import { Button } from 'react-native-paper';
 import { AVPlaybackStatusSuccess } from 'expo-av';
 import { AVPlaybackStatus } from 'expo-av/build/AV.types';
+import { Sound } from 'expo-av/build/Audio';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
+import { Button } from 'react-native-paper';
+import { colorPanel } from './Constants';
+import { TimerSession } from './TimerSession';
 
 type TimerProps = {
     timer: number,
@@ -64,6 +64,7 @@ export default function Timer({ route }) {
         var next = indexSession + 1;
         if (next == sessions.length) {
             setLastSerie(true)
+            deactivateKeepAwake();
             return;
         }
         setIndexSession(indexSession => indexSession + 1);
@@ -119,9 +120,13 @@ export default function Timer({ route }) {
             </View>
             <View style={{ padding: 30 }}>
                 {isPlaying ?
-                    <FontAwesome name="pause" size={24} color="black" onPress={() => setIsPlaying(false)} />
+                    <FontAwesome name="pause" size={24} color="black" onPress={() => { 
+                        deactivateKeepAwake();
+                        setIsPlaying(false); }} />
                     :
-                    <FontAwesome name="play" size={24} color="black" onPress={() => setIsPlaying(true)} />
+                    <FontAwesome name="play" size={24} color="black" onPress={() => { 
+                        activateKeepAwakeAsync();  
+                        setIsPlaying(true); }} />
                 }
             </View>
         </View>
